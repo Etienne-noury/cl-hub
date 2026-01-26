@@ -16,12 +16,12 @@ import { disciplines } from '@/data/disciplines';
 import { cn } from '@/lib/utils';
 
 export default function Carte() {
-  const [selectedDiscipline, setSelectedDiscipline] = useState('');
+  const [selectedDiscipline, setSelectedDiscipline] = useState('all');
   const [selectedClub, setSelectedClub] = useState<string | null>(null);
 
-  const filteredClubs = selectedDiscipline 
-    ? clubs.filter(c => c.discipline === selectedDiscipline)
-    : clubs;
+  const filteredClubs = selectedDiscipline === 'all'
+    ? clubs
+    : clubs.filter((c) => c.discipline === selectedDiscipline);
 
   const activeClub = selectedClub ? clubs.find(c => c.id === selectedClub) : null;
 
@@ -108,7 +108,7 @@ export default function Carte() {
                 <SelectValue placeholder="Toutes les disciplines" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Toutes les disciplines</SelectItem>
+                <SelectItem value="all">Toutes les disciplines</SelectItem>
                 {disciplines.slice(0, 15).map((d) => (
                   <SelectItem key={d.id} value={d.id}>
                     {d.icon} {d.name}
