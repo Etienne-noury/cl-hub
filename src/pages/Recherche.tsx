@@ -31,9 +31,9 @@ export default function Recherche() {
   
   // Filters
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
-  const [selectedDiscipline, setSelectedDiscipline] = useState(searchParams.get('discipline') || '');
-  const [selectedRegion, setSelectedRegion] = useState(searchParams.get('region') || '');
-  const [selectedLevel, setSelectedLevel] = useState('');
+  const [selectedDiscipline, setSelectedDiscipline] = useState(searchParams.get('discipline') || 'all');
+  const [selectedRegion, setSelectedRegion] = useState(searchParams.get('region') || 'all');
+  const [selectedLevel, setSelectedLevel] = useState('all');
   const [priceRange, setPriceRange] = useState([0, 1500]);
 
   // Filter clubs
@@ -44,9 +44,9 @@ export default function Recherche() {
         club.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
         club.postalCode.includes(searchQuery);
       
-      const matchesDiscipline = !selectedDiscipline || club.discipline === selectedDiscipline;
-      const matchesRegion = !selectedRegion || club.region === selectedRegion;
-      const matchesLevel = !selectedLevel || club.level === selectedLevel;
+      const matchesDiscipline = selectedDiscipline === 'all' || club.discipline === selectedDiscipline;
+      const matchesRegion = selectedRegion === 'all' || club.region === selectedRegion;
+      const matchesLevel = selectedLevel === 'all' || club.level === selectedLevel;
       const matchesPrice = club.licensePrice.adult >= priceRange[0] && 
                           club.licensePrice.adult <= priceRange[1];
 
@@ -56,18 +56,18 @@ export default function Recherche() {
 
   const clearFilters = () => {
     setSearchQuery('');
-    setSelectedDiscipline('');
-    setSelectedRegion('');
-    setSelectedLevel('');
+    setSelectedDiscipline('all');
+    setSelectedRegion('all');
+    setSelectedLevel('all');
     setPriceRange([0, 1500]);
     setSearchParams({});
   };
 
   const activeFiltersCount = [
     searchQuery,
-    selectedDiscipline,
-    selectedRegion,
-    selectedLevel,
+    selectedDiscipline !== 'all' ? selectedDiscipline : '',
+    selectedRegion !== 'all' ? selectedRegion : '',
+    selectedLevel !== 'all' ? selectedLevel : '',
     priceRange[0] > 0 || priceRange[1] < 1500,
   ].filter(Boolean).length;
 
@@ -127,7 +127,7 @@ export default function Recherche() {
                         <SelectValue placeholder="Toutes les disciplines" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Toutes les disciplines</SelectItem>
+                        <SelectItem value="all">Toutes les disciplines</SelectItem>
                         {disciplines.slice(0, 20).map((d) => (
                           <SelectItem key={d.id} value={d.id}>
                             {d.icon} {d.name}
@@ -147,7 +147,7 @@ export default function Recherche() {
                         <SelectValue placeholder="Toutes les régions" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Toutes les régions</SelectItem>
+                        <SelectItem value="all">Toutes les régions</SelectItem>
                         {regions.map((r) => (
                           <SelectItem key={r} value={r}>{r}</SelectItem>
                         ))}
@@ -165,7 +165,7 @@ export default function Recherche() {
                         <SelectValue placeholder="Tous les niveaux" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Tous les niveaux</SelectItem>
+                        <SelectItem value="all">Tous les niveaux</SelectItem>
                         {Object.entries(levels).map(([key, value]) => (
                           <SelectItem key={key} value={key}>{value.name}</SelectItem>
                         ))}
@@ -225,7 +225,7 @@ export default function Recherche() {
                       <SelectValue placeholder="Toutes" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Toutes</SelectItem>
+                      <SelectItem value="all">Toutes</SelectItem>
                       {disciplines.slice(0, 20).map((d) => (
                         <SelectItem key={d.id} value={d.id}>{d.icon} {d.name}</SelectItem>
                       ))}
@@ -239,7 +239,7 @@ export default function Recherche() {
                       <SelectValue placeholder="Toutes" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Toutes</SelectItem>
+                      <SelectItem value="all">Toutes</SelectItem>
                       {regions.map((r) => (
                         <SelectItem key={r} value={r}>{r}</SelectItem>
                       ))}
