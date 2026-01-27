@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, ChevronDown } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Search, MapPin, ChevronDown, Map } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { getPopularDisciplines } from '@/data/disciplines';
+import { getParentDisciplines, categories } from '@/data/disciplines';
 import { regions } from '@/data/clubs';
 
 export function HeroSection() {
@@ -19,7 +21,18 @@ export function HeroSection() {
   const [selectedDiscipline, setSelectedDiscipline] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
 
-  const popularDisciplines = getPopularDisciplines(10);
+  // Get parent disciplines organized by category
+  const parentDisciplines = getParentDisciplines();
+  
+  const getDisciplinesByCategory = () => {
+    const result: Record<string, typeof parentDisciplines> = {};
+    Object.keys(categories).forEach(cat => {
+      result[cat] = parentDisciplines.filter(d => d.category === cat);
+    });
+    return result;
+  };
+  
+  const disciplinesByCategory = getDisciplinesByCategory();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,17 +90,30 @@ export function HeroSection() {
                   />
                 </div>
 
-                {/* Discipline Select */}
+                {/* Discipline Select with Categories */}
                 <Select value={selectedDiscipline} onValueChange={setSelectedDiscipline}>
-                  <SelectTrigger className="h-14 w-full lg:w-48 border-0 bg-muted/50">
+                  <SelectTrigger className="h-14 w-full lg:w-56 border-0 bg-muted/50">
                     <SelectValue placeholder="Discipline" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {popularDisciplines.map((d) => (
-                      <SelectItem key={d.id} value={d.id}>
-                        {d.icon} {d.name}
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="max-h-80 bg-card z-[2000]">
+                    {Object.entries(categories).map(([categoryKey, categoryInfo]) => {
+                      const categoryDisciplines = disciplinesByCategory[categoryKey] || [];
+                      if (categoryDisciplines.length === 0) return null;
+                      
+                      return (
+                        <SelectGroup key={categoryKey}>
+                          <SelectLabel className="flex items-center gap-2 font-semibold text-foreground">
+                            <div className={`w-2 h-2 rounded-full ${categoryInfo.color}`} />
+                            {categoryInfo.name}
+                          </SelectLabel>
+                          {categoryDisciplines.slice(0, 8).map((d) => (
+                            <SelectItem key={d.id} value={d.id}>
+                              {d.icon} {d.name}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
 
@@ -97,7 +123,7 @@ export function HeroSection() {
                     <MapPin className="h-4 w-4 mr-2" />
                     <SelectValue placeholder="Région" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-card z-[2000]">
                     {regions.map((region) => (
                       <SelectItem key={region} value={region}>
                         {region}
@@ -114,10 +140,20 @@ export function HeroSection() {
             </div>
           </form>
 
+          {/* Map CTA Button */}
+          <div className="mt-6 animate-fade-up" style={{ animationDelay: '0.35s' }}>
+            <Link to="/carte">
+              <Button variant="outline" size="lg" className="gap-2 bg-white/10 border-white/30 text-white hover:bg-white/20 hover:text-white">
+                <Map className="w-5 h-5" />
+                Voir tous les clubs sur la carte
+              </Button>
+            </Link>
+          </div>
+
           {/* Quick Links */}
-          <div className="mt-8 flex flex-wrap justify-center gap-2 animate-fade-up" style={{ animationDelay: '0.4s' }}>
+          <div className="mt-6 flex flex-wrap justify-center gap-2 animate-fade-up" style={{ animationDelay: '0.4s' }}>
             <span className="text-white/60 text-sm">Populaires :</span>
-            {popularDisciplines.slice(0, 5).map((d) => (
+            {parentDisciplines.slice(0, 5).map((d) => (
               <button
                 key={d.id}
                 onClick={() => navigate(`/recherche?discipline=${d.id}`)}
