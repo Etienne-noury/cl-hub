@@ -144,42 +144,18 @@ export default function Recherche() {
                     </Select>
                   </div>
 
-                  {/* Level */}
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">
-                      Niveau
-                    </label>
-                    <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Tous les niveaux" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Tous les niveaux</SelectItem>
-                        {Object.entries(levels).map(([key, value]) => (
-                          <SelectItem key={key} value={key}>{value.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Price Range */}
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-4 block">
-                      Prix licence adulte : {priceRange[0]}€ - {priceRange[1]}€
-                    </label>
-                    <Slider
-                      value={priceRange}
-                      onValueChange={setPriceRange}
-                      min={0}
-                      max={1500}
-                      step={50}
-                      className="mt-2"
-                    />
-                  </div>
                 </div>
               </div>
             </div>
           </aside>
+
+          {/*
+            Note: les filtres "Niveau" et "Prix licence" ont été retirés,
+            car l'API publique des équipements sportifs ne fournit pas
+            ces informations (niveau / tarif licence).
+          */}
+          <div className="hidden" aria-hidden>
+
 
           {/* Mobile Filter Sheet */}
           <Sheet>
