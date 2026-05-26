@@ -85,12 +85,12 @@ export function SuggestUpdateDialog({ open, onOpenChange, dataEsId, nom, ville }
             <div>
               <Label htmlFor="prix_adulte">Prix licence adulte (€)</Label>
               <Input id="prix_adulte" type="number" step="1" {...register('prix_adulte')} />
-              {errors.prix_adulte && <p className="text-xs text-destructive mt-1">{errors.prix_adulte.message}</p>}
+              {errors.prix_adulte && <p className="text-xs text-destructive mt-1">{String(errors.prix_adulte.message)}</p>}
             </div>
             <div>
               <Label htmlFor="prix_enfant">Prix licence enfant (€)</Label>
               <Input id="prix_enfant" type="number" step="1" {...register('prix_enfant')} />
-              {errors.prix_enfant && <p className="text-xs text-destructive mt-1">{errors.prix_enfant.message}</p>}
+              {errors.prix_enfant && <p className="text-xs text-destructive mt-1">{String(errors.prix_enfant.message)}</p>}
             </div>
           </div>
 
@@ -117,7 +117,7 @@ export function SuggestUpdateDialog({ open, onOpenChange, dataEsId, nom, ville }
             <div>
               <Label htmlFor="site_web">Site web</Label>
               <Input id="site_web" type="url" placeholder="https://..." {...register('site_web')} />
-              {errors.site_web && <p className="text-xs text-destructive mt-1">{errors.site_web.message}</p>}
+              {errors.site_web && <p className="text-xs text-destructive mt-1">{String(errors.site_web.message)}</p>}
             </div>
           </div>
 
