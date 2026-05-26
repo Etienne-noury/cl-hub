@@ -1,15 +1,19 @@
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Star, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { clubs, levels } from '@/data/clubs';
+import { Skeleton } from '@/components/ui/skeleton';
+import { levels } from '@/data/clubs';
+import { fetchClubs } from '@/lib/api/equipements';
 import { cn } from '@/lib/utils';
 
 export function FeaturedClubs() {
-  // Get top rated clubs
-  const featuredClubs = [...clubs]
-    .sort((a, b) => b.rating - a.rating)
-    .slice(0, 4);
+  const { data: featuredClubs = [], isLoading } = useQuery({
+    queryKey: ['clubs', 'featured'],
+    queryFn: () => fetchClubs({ region: 'Île-de-France', withCoordsOnly: true, limit: 4 }),
+  });
+
 
   return (
     <section className="py-16 lg:py-24 bg-muted/30">
@@ -70,10 +74,12 @@ export function FeaturedClubs() {
                   </div>
 
                   {/* Rating */}
-                  <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
-                    <Star className="w-4 h-4 fill-warning text-warning" />
-                    <span className="text-sm font-semibold">{club.rating}</span>
-                  </div>
+                  {club.rating > 0 && (
+                    <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
+                      <Star className="w-4 h-4 fill-warning text-warning" />
+                      <span className="text-sm font-semibold">{club.rating}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Content */}
@@ -96,7 +102,16 @@ export function FeaturedClubs() {
                     <div>
                       <p className="text-xs text-muted-foreground">Licence adulte</p>
                       <p className="font-semibold text-foreground">
-                        {club.licensePrice.adult}€<span className="text-muted-foreground font-normal">/an</span>
+                        {club.licensePrice.adult > 0 ? (
+                          <>
+                            {club.licensePrice.adult}€
+                            <span className="text-muted-foreground font-normal">/an</span>
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground font-normal text-sm">
+                            Nous consulter
+                          </span>
+                        )}
                       </p>
                     </div>
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
@@ -107,6 +122,11 @@ export function FeaturedClubs() {
               </div>
             </Link>
           ))}
+          {isLoading &&
+            featuredClubs.length === 0 &&
+            Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-[4/5] rounded-2xl" />
+            ))}
         </div>
       </div>
     </section>

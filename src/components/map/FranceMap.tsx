@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
 import L from "leaflet";
-import { MapPin } from "lucide-react";
-import { clubs } from "@/data/clubs";
+import { MapPin, Loader2 } from "lucide-react";
+import { fetchClubs } from "@/lib/api/equipements";
 import { getDisciplineById } from "@/data/disciplines";
 import "leaflet/dist/leaflet.css";
 
@@ -22,25 +23,31 @@ const FRANCE_ZOOM = 6;
 interface FranceMapProps {
   height?: string;
   selectedDiscipline?: string;
+  selectedRegion?: string;
   maxClubs?: number;
 }
 
 export function FranceMap({
   height = "500px",
   selectedDiscipline = "all",
-  maxClubs,
+  selectedRegion = "all",
+  maxClubs = 100,
 }: FranceMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
 
-  const displayedClubs = useMemo(() => {
-    const filtered = clubs.filter((club) => {
-      if (selectedDiscipline === "all") return true;
-      return club.discipline === selectedDiscipline;
-    });
-    return maxClubs ? filtered.slice(0, maxClubs) : filtered;
-  }, [selectedDiscipline, maxClubs]);
+  const { data: displayedClubs = [], isFetching } = useQuery({
+    queryKey: ["clubs", "map", selectedDiscipline, selectedRegion, maxClubs],
+    queryFn: () =>
+      fetchClubs({
+        discipline: selectedDiscipline,
+        region: selectedRegion,
+        withCoordsOnly: true,
+        limit: maxClubs,
+      }),
+  });
+
 
   // Create the map once
   useEffect(() => {
@@ -116,6 +123,13 @@ export function FranceMap({
       style={{ height }}
     >
       <div ref={containerRef} className="h-full w-full" />
+
+      {isFetching && (
+        <div className="absolute top-4 right-4 bg-card/95 backdrop-blur-sm rounded-full px-3 py-2 shadow-lg border border-border z-[1000] flex items-center gap-2 text-sm">
+          <Loader2 className="w-4 h-4 animate-spin text-primary" />
+          Chargement…
+        </div>
+      )}
 
       {/* Overlay info */}
       <div className="absolute bottom-4 left-4 bg-card/95 backdrop-blur-sm rounded-xl p-3 shadow-lg border border-border z-[1000]">

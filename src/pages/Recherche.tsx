@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, Filter, MapPin, Star, ArrowRight, Grid3X3, List, SlidersHorizontal, X } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Search, MapPin, Star, ArrowRight, Grid3X3, List, SlidersHorizontal, X, Loader2 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,46 +21,35 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { Slider } from '@/components/ui/slider';
-import { clubs, levels, regions } from '@/data/clubs';
+import { levels, regions } from '@/data/clubs';
 import { disciplines } from '@/data/disciplines';
+import { fetchClubs } from '@/lib/api/equipements';
 import { cn } from '@/lib/utils';
 
 export default function Recherche() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  
+
   // Filters
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [selectedDiscipline, setSelectedDiscipline] = useState(searchParams.get('discipline') || 'all');
   const [selectedRegion, setSelectedRegion] = useState(searchParams.get('region') || 'all');
-  const [selectedLevel, setSelectedLevel] = useState('all');
-  const [priceRange, setPriceRange] = useState([0, 1500]);
 
-  // Filter clubs
-  const filteredClubs = useMemo(() => {
-    return clubs.filter(club => {
-      const matchesSearch = !searchQuery || 
-        club.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        club.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        club.postalCode.includes(searchQuery);
-      
-      const matchesDiscipline = selectedDiscipline === 'all' || club.discipline === selectedDiscipline;
-      const matchesRegion = selectedRegion === 'all' || club.region === selectedRegion;
-      const matchesLevel = selectedLevel === 'all' || club.level === selectedLevel;
-      const matchesPrice = club.licensePrice.adult >= priceRange[0] && 
-                          club.licensePrice.adult <= priceRange[1];
-
-      return matchesSearch && matchesDiscipline && matchesRegion && matchesLevel && matchesPrice;
-    });
-  }, [searchQuery, selectedDiscipline, selectedRegion, selectedLevel, priceRange]);
+  const { data: filteredClubs = [], isLoading, isFetching } = useQuery({
+    queryKey: ['clubs', 'search', searchQuery, selectedDiscipline, selectedRegion],
+    queryFn: () =>
+      fetchClubs({
+        q: searchQuery,
+        discipline: selectedDiscipline,
+        region: selectedRegion,
+        limit: 60,
+      }),
+  });
 
   const clearFilters = () => {
     setSearchQuery('');
     setSelectedDiscipline('all');
     setSelectedRegion('all');
-    setSelectedLevel('all');
-    setPriceRange([0, 1500]);
     setSearchParams({});
   };
 
@@ -67,9 +57,8 @@ export default function Recherche() {
     searchQuery,
     selectedDiscipline !== 'all' ? selectedDiscipline : '',
     selectedRegion !== 'all' ? selectedRegion : '',
-    selectedLevel !== 'all' ? selectedLevel : '',
-    priceRange[0] > 0 || priceRange[1] < 1500,
   ].filter(Boolean).length;
+
 
   return (
     <Layout>
@@ -155,42 +144,19 @@ export default function Recherche() {
                     </Select>
                   </div>
 
-                  {/* Level */}
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-2 block">
-                      Niveau
-                    </label>
-                    <Select value={selectedLevel} onValueChange={setSelectedLevel}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Tous les niveaux" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Tous les niveaux</SelectItem>
-                        {Object.entries(levels).map(([key, value]) => (
-                          <SelectItem key={key} value={key}>{value.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Price Range */}
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-4 block">
-                      Prix licence adulte : {priceRange[0]}€ - {priceRange[1]}€
-                    </label>
-                    <Slider
-                      value={priceRange}
-                      onValueChange={setPriceRange}
-                      min={0}
-                      max={1500}
-                      step={50}
-                      className="mt-2"
-                    />
-                  </div>
                 </div>
               </div>
             </div>
           </aside>
+
+          {/*
+            Note: les filtres "Niveau" et "Prix licence" ont été retirés,
+            car l'API publique des équipements sportifs ne fournit pas
+            ces informations (niveau / tarif licence).
+          */}
+
+
+
 
           {/* Mobile Filter Sheet */}
           <Sheet>
@@ -281,7 +247,12 @@ export default function Recherche() {
             </div>
 
             {/* Results */}
-            {filteredClubs.length === 0 ? (
+            {isLoading ? (
+              <div className="text-center py-16">
+                <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-muted-foreground">Chargement des clubs…</p>
+              </div>
+            ) : filteredClubs.length === 0 ? (
               <div className="text-center py-16">
                 <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                   <Search className="w-10 h-10 text-muted-foreground" />
@@ -296,7 +267,7 @@ export default function Recherche() {
               </div>
             ) : (
               <div className={cn(
-                viewMode === 'grid' 
+                viewMode === 'grid'
                   ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'
                   : 'space-y-4'
               )}>
@@ -321,10 +292,12 @@ export default function Recherche() {
                             {levels[club.level].name}
                           </Badge>
                         </div>
-                        <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
-                          <Star className="w-4 h-4 fill-warning text-warning" />
-                          <span className="text-sm font-semibold">{club.rating}</span>
-                        </div>
+                        {club.rating > 0 && (
+                          <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
+                            <Star className="w-4 h-4 fill-warning text-warning" />
+                            <span className="text-sm font-semibold">{club.rating}</span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Content */}
@@ -337,13 +310,17 @@ export default function Recherche() {
                         </h3>
                         <div className="flex items-center gap-1 text-muted-foreground text-sm mb-4">
                           <MapPin className="w-4 h-4" />
-                          <span>{club.city}, {club.region}</span>
+                          <span>{[club.city, club.region].filter(Boolean).join(', ')}</span>
                         </div>
                         <div className="flex items-center justify-between pt-4 border-t border-border/50">
                           <div>
                             <p className="text-xs text-muted-foreground">Licence adulte</p>
                             <p className="font-semibold text-foreground">
-                              {club.licensePrice.adult}€<span className="text-muted-foreground font-normal">/an</span>
+                              {club.licensePrice.adult > 0 ? (
+                                <>{club.licensePrice.adult}€<span className="text-muted-foreground font-normal">/an</span></>
+                              ) : (
+                                <span className="text-muted-foreground font-normal text-sm">Nous consulter</span>
+                              )}
                             </p>
                           </div>
                           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -356,6 +333,10 @@ export default function Recherche() {
                 ))}
               </div>
             )}
+            {isFetching && !isLoading && (
+              <p className="text-xs text-muted-foreground text-center mt-4">Mise à jour…</p>
+            )}
+
           </div>
         </div>
       </div>
