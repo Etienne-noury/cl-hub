@@ -14,7 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clubs_enriched: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          discipline: string | null
+          email: string | null
+          external_id: string | null
+          federation_code: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          name: string
+          phone: string | null
+          postal_code: string | null
+          raw: Json | null
+          region: string | null
+          scraped_at: string
+          source_url: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          discipline?: string | null
+          email?: string | null
+          external_id?: string | null
+          federation_code: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          phone?: string | null
+          postal_code?: string | null
+          raw?: Json | null
+          region?: string | null
+          scraped_at?: string
+          source_url: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          discipline?: string | null
+          email?: string | null
+          external_id?: string | null
+          federation_code?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          phone?: string | null
+          postal_code?: string | null
+          raw?: Json | null
+          region?: string | null
+          scraped_at?: string
+          source_url?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
