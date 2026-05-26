@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search, MapPin, Star, ArrowRight, Grid3X3, List, SlidersHorizontal, X, Loader2 } from 'lucide-react';
+import { Search, MapPin, Star, ArrowRight, Grid3X3, List, SlidersHorizontal, X, Loader2, ExternalLink } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,7 @@ import {
 import { levels, regions } from '@/data/clubs';
 import { disciplines } from '@/data/disciplines';
 import { fetchClubs } from '@/lib/api/equipements';
+import { getFederationForDiscipline } from '@/lib/federations-map';
 import { cn } from '@/lib/utils';
 
 export default function Recherche() {
