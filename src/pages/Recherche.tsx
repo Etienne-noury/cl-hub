@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, Filter, MapPin, Star, ArrowRight, Grid3X3, List, SlidersHorizontal, X } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Search, MapPin, Star, ArrowRight, Grid3X3, List, SlidersHorizontal, X, Loader2 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,46 +21,35 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { Slider } from '@/components/ui/slider';
-import { clubs, levels, regions } from '@/data/clubs';
+import { levels, regions } from '@/data/clubs';
 import { disciplines } from '@/data/disciplines';
+import { fetchClubs } from '@/lib/api/equipements';
 import { cn } from '@/lib/utils';
 
 export default function Recherche() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  
+
   // Filters
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [selectedDiscipline, setSelectedDiscipline] = useState(searchParams.get('discipline') || 'all');
   const [selectedRegion, setSelectedRegion] = useState(searchParams.get('region') || 'all');
-  const [selectedLevel, setSelectedLevel] = useState('all');
-  const [priceRange, setPriceRange] = useState([0, 1500]);
 
-  // Filter clubs
-  const filteredClubs = useMemo(() => {
-    return clubs.filter(club => {
-      const matchesSearch = !searchQuery || 
-        club.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        club.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        club.postalCode.includes(searchQuery);
-      
-      const matchesDiscipline = selectedDiscipline === 'all' || club.discipline === selectedDiscipline;
-      const matchesRegion = selectedRegion === 'all' || club.region === selectedRegion;
-      const matchesLevel = selectedLevel === 'all' || club.level === selectedLevel;
-      const matchesPrice = club.licensePrice.adult >= priceRange[0] && 
-                          club.licensePrice.adult <= priceRange[1];
-
-      return matchesSearch && matchesDiscipline && matchesRegion && matchesLevel && matchesPrice;
-    });
-  }, [searchQuery, selectedDiscipline, selectedRegion, selectedLevel, priceRange]);
+  const { data: filteredClubs = [], isLoading, isFetching } = useQuery({
+    queryKey: ['clubs', 'search', searchQuery, selectedDiscipline, selectedRegion],
+    queryFn: () =>
+      fetchClubs({
+        q: searchQuery,
+        discipline: selectedDiscipline,
+        region: selectedRegion,
+        limit: 60,
+      }),
+  });
 
   const clearFilters = () => {
     setSearchQuery('');
     setSelectedDiscipline('all');
     setSelectedRegion('all');
-    setSelectedLevel('all');
-    setPriceRange([0, 1500]);
     setSearchParams({});
   };
 
@@ -67,9 +57,8 @@ export default function Recherche() {
     searchQuery,
     selectedDiscipline !== 'all' ? selectedDiscipline : '',
     selectedRegion !== 'all' ? selectedRegion : '',
-    selectedLevel !== 'all' ? selectedLevel : '',
-    priceRange[0] > 0 || priceRange[1] < 1500,
   ].filter(Boolean).length;
+
 
   return (
     <Layout>
