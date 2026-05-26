@@ -10,6 +10,8 @@ import ClubDetail from "./pages/ClubDetail";
 import Carte from "./pages/Carte";
 import Aide from "./pages/Aide";
 import Federations from "./pages/Federations";
+import Football from "./pages/Football";
+import FootballClubDetail from "./pages/FootballClubDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
