@@ -74,10 +74,12 @@ export function FeaturedClubs() {
                   </div>
 
                   {/* Rating */}
-                  <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
-                    <Star className="w-4 h-4 fill-warning text-warning" />
-                    <span className="text-sm font-semibold">{club.rating}</span>
-                  </div>
+                  {club.rating > 0 && (
+                    <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
+                      <Star className="w-4 h-4 fill-warning text-warning" />
+                      <span className="text-sm font-semibold">{club.rating}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Content */}
@@ -100,7 +102,16 @@ export function FeaturedClubs() {
                     <div>
                       <p className="text-xs text-muted-foreground">Licence adulte</p>
                       <p className="font-semibold text-foreground">
-                        {club.licensePrice.adult}€<span className="text-muted-foreground font-normal">/an</span>
+                        {club.licensePrice.adult > 0 ? (
+                          <>
+                            {club.licensePrice.adult}€
+                            <span className="text-muted-foreground font-normal">/an</span>
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground font-normal text-sm">
+                            Nous consulter
+                          </span>
+                        )}
                       </p>
                     </div>
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
@@ -111,6 +122,11 @@ export function FeaturedClubs() {
               </div>
             </Link>
           ))}
+          {isLoading &&
+            featuredClubs.length === 0 &&
+            Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-[4/5] rounded-2xl" />
+            ))}
         </div>
       </div>
     </section>
