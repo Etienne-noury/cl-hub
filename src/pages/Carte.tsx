@@ -68,9 +68,11 @@ export default function Carte() {
 
       {/* Map */}
       <div className="h-[calc(100vh-220px)]">
-        <FranceMap 
-          height="100%" 
+        <FranceMap
+          height="100%"
           selectedDiscipline={selectedDiscipline}
+          selectedRegion={selectedRegion}
+          maxClubs={100}
         />
       </div>
     </Layout>
