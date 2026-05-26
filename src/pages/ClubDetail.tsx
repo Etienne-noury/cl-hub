@@ -256,14 +256,18 @@ export default function ClubDetail() {
                     <p className="text-foreground">{club.postalCode} {club.city}</p>
                   </div>
                 </div>
-                <a href={`tel:${club.phone}`} className="flex items-center gap-3 text-foreground hover:text-primary transition-colors">
-                  <Phone className="w-5 h-5 text-primary" />
-                  {club.phone}
-                </a>
-                <a href={`mailto:${club.email}`} className="flex items-center gap-3 text-foreground hover:text-primary transition-colors">
-                  <Mail className="w-5 h-5 text-primary" />
-                  {club.email}
-                </a>
+                {club.phone && (
+                  <a href={`tel:${club.phone}`} className="flex items-center gap-3 text-foreground hover:text-primary transition-colors">
+                    <Phone className="w-5 h-5 text-primary" />
+                    {club.phone}
+                  </a>
+                )}
+                {club.email && (
+                  <a href={`mailto:${club.email}`} className="flex items-center gap-3 text-foreground hover:text-primary transition-colors">
+                    <Mail className="w-5 h-5 text-primary" />
+                    {club.email}
+                  </a>
+                )}
                 {club.website && (
                   <a href={club.website} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-foreground hover:text-primary transition-colors">
                     <Globe className="w-5 h-5 text-primary" />
