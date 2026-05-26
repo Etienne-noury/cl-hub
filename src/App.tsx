@@ -9,6 +9,7 @@ import Disciplines from "./pages/Disciplines";
 import ClubDetail from "./pages/ClubDetail";
 import Carte from "./pages/Carte";
 import Aide from "./pages/Aide";
+import Federations from "./pages/Federations";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/club/:id" element={<ClubDetail />} />
           <Route path="/carte" element={<Carte />} />
           <Route path="/aide" element={<Aide />} />
+          <Route path="/federations" element={<Federations />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

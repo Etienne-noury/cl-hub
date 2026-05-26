@@ -9,6 +9,7 @@ const navItems = [
   { href: '/recherche', label: 'Rechercher' },
   { href: '/disciplines', label: 'Disciplines' },
   { href: '/carte', label: 'Carte' },
+  { href: '/federations', label: 'Fédérations' },
   { href: '/aide', label: 'Aide' },
 ];
 
