@@ -154,7 +154,8 @@ export default function Recherche() {
             car l'API publique des équipements sportifs ne fournit pas
             ces informations (niveau / tarif licence).
           */}
-          <div className="hidden" aria-hidden>
+
+
 
 
           {/* Mobile Filter Sheet */}
