@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search, MapPin, Star, ArrowRight, Grid3X3, List, SlidersHorizontal, X, Loader2 } from 'lucide-react';
+import { Search, MapPin, Star, ArrowRight, Grid3X3, List, SlidersHorizontal, X, Loader2, ExternalLink } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,7 @@ import {
 import { levels, regions } from '@/data/clubs';
 import { disciplines } from '@/data/disciplines';
 import { fetchClubs } from '@/lib/api/equipements';
+import { getFederationForDiscipline } from '@/lib/federations-map';
 import { cn } from '@/lib/utils';
 
 export default function Recherche() {
@@ -75,6 +76,31 @@ export default function Recherche() {
       </section>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Bandeau annuaire fédéral */}
+        {(() => {
+          const fed = getFederationForDiscipline(selectedDiscipline);
+          if (!fed) return null;
+          const url = fed.buildSearchUrl({ city: searchQuery, postalCode: searchQuery });
+          return (
+            <div className="mb-6 rounded-2xl border border-primary/20 bg-primary/5 p-4 lg:p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+              <div className="text-3xl" aria-hidden>{fed.icon}</div>
+              <div className="flex-1">
+                <p className="font-display font-semibold text-foreground">
+                  Annuaire officiel — {fed.name}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Retrouvez l'exhaustivité des clubs affiliés{searchQuery ? ` à "${searchQuery}"` : ''} sur le site fédéral.
+                </p>
+              </div>
+              <Button asChild variant="default" className="gap-2">
+                <a href={url} target="_blank" rel="noopener noreferrer">
+                  Voir l'annuaire <ExternalLink className="w-4 h-4" />
+                </a>
+              </Button>
+            </div>
+          );
+        })()}
+
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters - Desktop */}
           <aside className="hidden lg:block w-72 flex-shrink-0">
@@ -302,9 +328,19 @@ export default function Recherche() {
 
                       {/* Content */}
                       <div className="p-5 flex-1">
-                        <p className="text-sm text-primary font-medium mb-1">
-                          {club.disciplineName}
-                        </p>
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <p className="text-sm text-primary font-medium">
+                            {club.disciplineName}
+                          </p>
+                          {(() => {
+                            const fed = getFederationForDiscipline(club.discipline);
+                            return fed ? (
+                              <Badge variant="outline" className="text-[10px] gap-1 px-1.5 py-0">
+                                <span aria-hidden>{fed.icon}</span> {fed.code}
+                              </Badge>
+                            ) : null;
+                          })()}
+                        </div>
                         <h3 className="font-display font-semibold text-lg text-foreground mb-2 line-clamp-2">
                           {club.name}
                         </h3>
