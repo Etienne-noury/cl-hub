@@ -24,6 +24,7 @@ import {
 import { levels, regions } from '@/data/clubs';
 import { disciplines } from '@/data/disciplines';
 import { fetchClubs } from '@/lib/api/equipements';
+import { fetchEnrichedClubs } from '@/lib/api/enriched-clubs';
 import { getFederationForDiscipline } from '@/lib/federations-map';
 import { cn } from '@/lib/utils';
 
