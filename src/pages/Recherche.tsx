@@ -328,9 +328,19 @@ export default function Recherche() {
 
                       {/* Content */}
                       <div className="p-5 flex-1">
-                        <p className="text-sm text-primary font-medium mb-1">
-                          {club.disciplineName}
-                        </p>
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <p className="text-sm text-primary font-medium">
+                            {club.disciplineName}
+                          </p>
+                          {(() => {
+                            const fed = getFederationForDiscipline(club.discipline);
+                            return fed ? (
+                              <Badge variant="outline" className="text-[10px] gap-1 px-1.5 py-0">
+                                <span aria-hidden>{fed.icon}</span> {fed.code}
+                              </Badge>
+                            ) : null;
+                          })()}
+                        </div>
                         <h3 className="font-display font-semibold text-lg text-foreground mb-2 line-clamp-2">
                           {club.name}
                         </h3>
