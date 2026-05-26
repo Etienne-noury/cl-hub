@@ -47,9 +47,11 @@ export async function fetchFootClubsByLocation(query: string): Promise<FootClubR
   if (!q) return [];
 
   const isPostalCode = /^\d{4,5}$/.test(q);
-  const where = isPostalCode
-    ? `activite_lib="Football" AND inst_cp="${q}"`
-    : `activite_lib="Football" AND commune_lib="${q.toUpperCase().replace(/"/g, '')}"`;
+  const escaped = q.replace(/"/g, '');
+  const locationClause = isPostalCode
+    ? `inst_cp="${escaped}"`
+    : `new_name="${escaped}"`;
+  const where = `aps_name="Football" AND ${locationClause}`;
 
   const url = `${SPORTS_GOUV_URL}?where=${encodeURIComponent(where)}&limit=50`;
 
@@ -58,21 +60,21 @@ export async function fetchFootClubsByLocation(query: string): Promise<FootClubR
   const json = await res.json();
   const records = (json?.results ?? []) as any[];
 
-  // Dédoublonne par inst_numero (un équipement peut apparaître plusieurs fois par activité)
+  // Dédoublonne par equip_numero
   const seen = new Set<string>();
   const clubs: FootClubRaw[] = [];
   for (const r of records) {
-    const id = r.inst_numero ?? r.equip_numero ?? r.numero;
+    const id = r.equip_numero ?? r.inst_numero;
     if (!id || seen.has(id)) continue;
     seen.add(id);
     clubs.push({
       data_es_id: String(id),
-      nom: r.inst_nom ?? 'Club de football',
+      nom: r.inst_nom ?? r.equip_nom ?? 'Club de football',
       adresse: r.inst_adresse ?? '',
       code_postal: r.inst_cp ?? '',
-      ville: r.inst_com_lib ?? r.commune_lib ?? '',
-      lat: r.coordonnees?.lat ?? null,
-      lng: r.coordonnees?.lon ?? r.coordonnees?.lng ?? null,
+      ville: r.new_name ?? '',
+      lat: r.equip_coordonnees?.lat ?? r.coordonnees?.lat ?? null,
+      lng: r.equip_coordonnees?.lon ?? r.coordonnees?.lon ?? null,
     });
   }
   return clubs;
@@ -106,7 +108,7 @@ export async function enrichWithSupabase(clubs: FootClubRaw[]): Promise<FootClub
 
 /** Récupère un club enrichi par son ID data.sports.gouv.fr. */
 export async function fetchFootClubById(dataEsId: string): Promise<FootClub | null> {
-  const url = `${SPORTS_GOUV_URL}?where=${encodeURIComponent(`inst_numero="${dataEsId}" AND activite_lib="Football"`)}&limit=1`;
+  const url = `${SPORTS_GOUV_URL}?where=${encodeURIComponent(`equip_numero="${dataEsId}"`)}&limit=1`;
   const res = await fetch(url);
   if (!res.ok) return null;
   const json = await res.json();
@@ -114,12 +116,12 @@ export async function fetchFootClubById(dataEsId: string): Promise<FootClub | nu
   if (!r) return null;
   const raw: FootClubRaw = {
     data_es_id: dataEsId,
-    nom: r.inst_nom ?? 'Club de football',
+    nom: r.inst_nom ?? r.equip_nom ?? 'Club de football',
     adresse: r.inst_adresse ?? '',
     code_postal: r.inst_cp ?? '',
-    ville: r.inst_com_lib ?? '',
-    lat: r.coordonnees?.lat ?? null,
-    lng: r.coordonnees?.lon ?? r.coordonnees?.lng ?? null,
+    ville: r.new_name ?? '',
+    lat: r.equip_coordonnees?.lat ?? null,
+    lng: r.equip_coordonnees?.lon ?? null,
   };
   const [enriched] = await enrichWithSupabase([raw]);
   return enriched ?? raw;
