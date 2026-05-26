@@ -247,7 +247,12 @@ export default function Recherche() {
             </div>
 
             {/* Results */}
-            {filteredClubs.length === 0 ? (
+            {isLoading ? (
+              <div className="text-center py-16">
+                <Loader2 className="w-10 h-10 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-muted-foreground">Chargement des clubs…</p>
+              </div>
+            ) : filteredClubs.length === 0 ? (
               <div className="text-center py-16">
                 <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
                   <Search className="w-10 h-10 text-muted-foreground" />
@@ -262,7 +267,7 @@ export default function Recherche() {
               </div>
             ) : (
               <div className={cn(
-                viewMode === 'grid' 
+                viewMode === 'grid'
                   ? 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'
                   : 'space-y-4'
               )}>
@@ -287,10 +292,12 @@ export default function Recherche() {
                             {levels[club.level].name}
                           </Badge>
                         </div>
-                        <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
-                          <Star className="w-4 h-4 fill-warning text-warning" />
-                          <span className="text-sm font-semibold">{club.rating}</span>
-                        </div>
+                        {club.rating > 0 && (
+                          <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
+                            <Star className="w-4 h-4 fill-warning text-warning" />
+                            <span className="text-sm font-semibold">{club.rating}</span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Content */}
@@ -303,13 +310,17 @@ export default function Recherche() {
                         </h3>
                         <div className="flex items-center gap-1 text-muted-foreground text-sm mb-4">
                           <MapPin className="w-4 h-4" />
-                          <span>{club.city}, {club.region}</span>
+                          <span>{[club.city, club.region].filter(Boolean).join(', ')}</span>
                         </div>
                         <div className="flex items-center justify-between pt-4 border-t border-border/50">
                           <div>
                             <p className="text-xs text-muted-foreground">Licence adulte</p>
                             <p className="font-semibold text-foreground">
-                              {club.licensePrice.adult}€<span className="text-muted-foreground font-normal">/an</span>
+                              {club.licensePrice.adult > 0 ? (
+                                <>{club.licensePrice.adult}€<span className="text-muted-foreground font-normal">/an</span></>
+                              ) : (
+                                <span className="text-muted-foreground font-normal text-sm">Nous consulter</span>
+                              )}
                             </p>
                           </div>
                           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -322,6 +333,10 @@ export default function Recherche() {
                 ))}
               </div>
             )}
+            {isFetching && !isLoading && (
+              <p className="text-xs text-muted-foreground text-center mt-4">Mise à jour…</p>
+            )}
+
           </div>
         </div>
       </div>
