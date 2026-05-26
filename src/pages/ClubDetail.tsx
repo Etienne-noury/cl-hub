@@ -86,11 +86,13 @@ export default function ClubDetail() {
                     <MapPin className="w-4 h-4" />
                     <span>{club.city}, {club.region}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-warning text-warning" />
-                    <span className="font-semibold text-foreground">{club.rating}</span>
-                    <span>({club.reviewCount} avis)</span>
-                  </div>
+                  {club.rating > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Star className="w-4 h-4 fill-warning text-warning" />
+                      <span className="font-semibold text-foreground">{club.rating}</span>
+                      <span>({club.reviewCount} avis)</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Actions */}
