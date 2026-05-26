@@ -1,82 +1,120 @@
-# Stratégie d'accès aux annuaires des 10 disciplines majeures
+## Objectif
 
-Objectif : pour chacune des 10 disciplines les plus pratiquées, identifier **la source la plus fiable** permettant de récupérer les informations détaillées d'un club (nom, adresse, GPS, contact, créneaux, tarifs, affiliation).
+Construire un annuaire spécialisé Football qui combine 3 sources de données et permet aux utilisateurs de suggérer des mises à jour, en plus de l'annuaire générique existant.
 
-## 1. Cartographie des sources par fédération
+## Architecture
 
-| # | Discipline | Fédération | Source recommandée | Type d'accès | Données dispo |
-|---|---|---|---|---|---|
-| 1 | Football | FFF | `api-dofa.fff.fr` (API interne annuaire) | Scraping / reverse | Clubs, équipes, terrains |
-| 2 | Tennis | FFT | `tenup.fft.fr/clubs` | Scraping HTML (pas d'API publique) | Clubs, courts, contacts |
-| 3 | Équitation | FFE | `ffe.com/Rechercher-un-club` | Scraping + export CSV partiel | Centres équestres, disciplines |
-| 4 | Basket | FFBB | `www.ffbb.com/clubs` | Scraping HTML | Clubs, salles, championnats |
-| 5 | Handball | FFHB | `www.ffhandball.fr/fr/ffhandball/clubs` | Scraping | Clubs, gymnases |
-| 6 | Judo | FFJDA | `www.ffjudo.com/trouver-un-club` | Scraping | Dojos, ceintures encadrants |
-| 7 | Golf | FFGolf | `www.ffgolf.org/Jouer/Trouver-un-parcours` | Scraping (+ open data parcours) | Parcours, practice, green-fees |
-| 8 | Natation | FFN | `ffnatation.fr/clubs` (extranet) | Scraping limité | Clubs, piscines |
-| 9 | Rugby | FFR | `www.ffr.fr/.../trouver-un-club` | Scraping | Clubs, stades |
-| 10 | Gymnastique | FFGym | `www.ffgym.fr/Pratiquer/Trouver-un-club` | Scraping | Clubs, agrès |
+### 1. Base de données — nouvelle table `clubs_foot`
 
-**Constat clé** : aucune de ces fédérations n'expose d'API publique ouverte sans clé. Seule **FFVL** (vol libre, hors top 10) propose un vrai open data. Pour le top 10, il faut combiner 3 approches.
-
-## 2. Trois approches complémentaires
-
-### Approche A — Socle open data (déjà en place)
-Conserver `data.sports.gouv.fr` :
-- **clubs_dep** : annuaire affiliation toutes fédés (limité : nom, commune, fédé, pas de contacts)
-- **equipements-sportifs (RES)** : 270 000 équipements avec GPS, activités praticables
-
-→ Couvre l'**existence** des clubs mais pas les détails (tarifs, créneaux, email).
-
-### Approche B — Scraping ciblé via Firecrawl (recommandée)
-Pour les 10 fédérations ci-dessus, utiliser **Firecrawl** (connecteur déjà disponible côté Lovable Cloud) :
-1. `firecrawl.map(annuaire_url)` pour découvrir toutes les fiches club
-2. `firecrawl.scrape(url, { formats: [{ type: 'json', schema }] })` pour extraire en JSON structuré (nom, adresse, tél, email, site, disciplines)
-3. Stockage en base Lovable Cloud (`clubs_enriched`) avec `federation_code`, `source_url`, `scraped_at`
-
-Avantages : pas besoin de clés fédérales, données fraîches, JSON normalisé.
-Limites : coûte des crédits Firecrawl, à rafraîchir périodiquement, certains sites bloquent (FFT/Ten'Up est dynamique → `waitFor`).
-
-### Approche C — Deep-links (fallback actuel)
-Garder le système `federations-map.ts` existant pour les disciplines non scrapées ou en cas d'échec : renvoyer l'utilisateur vers l'annuaire officiel pré-filtré.
-
-## 3. Architecture cible
-
-```text
-                  ┌─────────────────────────┐
-   Recherche ───► │  clubs_enriched (DB)    │ ◄── Scraping Firecrawl
-                  │  - source: gouv | fede  │      (edge function cron)
-                  │  - federation_code      │
-                  │  - lat/lng, contacts    │ ◄── data.sports.gouv (sync)
-                  └─────────────────────────┘
-                            │
-                            ▼
-                  Fusion par (nom + commune)
-                            │
-                            ▼
-                  Carte / liste / fiche club
-                            │
-                            ▼
-              Fallback : deep-link annuaire fédéral
+```sql
+clubs_foot
+├── id (uuid, pk)
+├── data_es_id (text, unique)        -- ID data.sports.gouv.fr (jointure)
+├── nom (text)
+├── ville (text)
+├── code_postal (text)
+├── niveau_ligue (text)              -- ex: "Régional 1", "Départemental"
+├── prix_adulte (numeric)
+├── prix_enfant (numeric)
+├── site_web (text)
+├── telephone (text)
+├── horaires (jsonb)                 -- ex: { "lundi": "18h-20h", ... }
+├── google_rating (numeric)
+├── google_nb_avis (int)
+├── updated_at (timestamptz)
+└── created_at (timestamptz)
 ```
 
-## 4. Plan d'exécution proposé
+Plus une table `clubs_foot_suggestions` pour les soumissions utilisateurs (modération avant écriture dans `clubs_foot`) :
 
-1. **Activer la table `clubs_enriched`** dans Lovable Cloud (schéma unifié + index sur `federation_code`, `commune`, `discipline`).
-2. **Créer une edge function `scrape-federation`** paramétrée par code fédé : map + scrape + upsert. Une fonction, 10 configs.
-3. **Définir les 10 configs de scraping** (URL d'annuaire + schéma JSON d'extraction) dans `supabase/functions/scrape-federation/configs.ts`.
-4. **Cron hebdomadaire** par fédération (éviter de tout scraper d'un coup, économise les crédits).
-5. **Adapter `fetchClubs`** pour requêter `clubs_enriched` en priorité, retomber sur l'API gouv si vide.
-6. **Enrichir la fiche club** (`/club/:id`) avec les nouveaux champs (email, tél, site, créneaux).
-7. **Garder le bandeau deep-link** comme garantie d'exhaustivité.
+```sql
+clubs_foot_suggestions
+├── id, data_es_id, nom, ville
+├── prix_adulte, prix_enfant, niveau_ligue
+├── horaires_text, telephone, site_web
+├── status ('pending' | 'approved' | 'rejected')
+├── created_at
+```
 
-## 5. Questions à trancher avant de coder
+RLS :
+- `clubs_foot` : lecture publique, écriture service_role uniquement.
+- `clubs_foot_suggestions` : INSERT public (anonyme autorisé pour MVP), SELECT/UPDATE service_role.
 
-- **Budget Firecrawl** : ~10 000 pages × 10 fédés ≈ 100k crédits. OK pour démarrer sur les 3 plus grosses (Football, Tennis, Judo) ?
-- **Périmètre v1** : on commence par combien de fédérations ? (recommandation : 3, puis itérer)
-- **Légal/RGPD** : les annuaires fédéraux sont publics, mais le scraping massif demande un `robots.txt` check et un délai de courtoisie — à intégrer dans la fonction.
-- **Fraîcheur** : hebdo suffit, ou besoin de temps réel ?
+### 2. Edge function `get-google-places`
 
----
+Reçoit `{ clubNom, ville }`, appelle Google Places API (New) via le connecteur Google Maps déjà disponible :
+1. `places:searchText` avec `"<clubNom> <ville> football"`
+2. `places/{placeId}` pour récupérer `rating`, `userRatingCount`, `nationalPhoneNumber`, `websiteUri`, `regularOpeningHours`.
 
-Dis-moi sur quelles fédérations tu veux qu'on commence (recommandation : Football, Tennis, Judo) et je lance la mise en place : table DB + edge function + premier scraper.
+Renvoie `{ rating, user_ratings_total, formatted_phone_number, website, opening_hours }` (fallback gracieux : retourne `null` si Google ne trouve rien).
+
+> Note : Le connecteur **Google Maps** doit être ajouté côté workspace. Si non connecté, je le proposerai après validation du plan.
+
+### 3. Couche client
+
+**`src/lib/api/foot.ts`** (nouveau) :
+- `fetchFootClubsByVille(ville: string)` → appelle data.sports.gouv.fr directement (pas de clé).
+- `enrichWithSupabase(clubs)` → fetch en batch depuis `clubs_foot` via `in('data_es_id', ids)`.
+- `fetchGooglePlaces(nom, ville)` → invoke edge function.
+- `submitSuggestion(payload)` → insert dans `clubs_foot_suggestions`.
+
+**Combinaison** :
+```
+data.sports.gouv.fr (source 1)
+  └─ left join clubs_foot on data_es_id (source 2 — prix, horaires, niveau)
+  └─ on-demand fetch get-google-places (source 3 — rating, contact)
+```
+
+### 4. Pages & UI
+
+**Nouvelle route `/football`** (séparée de l'annuaire générique pour ne pas casser l'existant) :
+
+- **`/football`** — Hero avec barre de recherche (ville / code postal) + résultats sous forme de cartes (`FootClubCard`).
+- **`/football/club/:dataEsId`** — Page détail avec toutes les sections :
+  - Header (nom + badge niveau/ligue)
+  - Mini-carte Google Maps embed (iframe simple, pas besoin du JS API)
+  - Bloc Google (⭐ rating + nb avis)
+  - Bloc tarifs licence (adulte/enfant)
+  - Bloc horaires
+  - Bloc contact (site, tel)
+  - Bouton **« Suggérer une mise à jour »** → ouvre `SuggestUpdateDialog`
+
+**Composants** :
+- `src/pages/Football.tsx` — recherche + liste
+- `src/pages/FootballClubDetail.tsx` — détail
+- `src/components/foot/FootClubCard.tsx`
+- `src/components/foot/SuggestUpdateDialog.tsx` (Dialog + react-hook-form + zod)
+- `src/components/foot/GoogleMiniMap.tsx` (iframe embed avec `VITE_LOVABLE_CONNECTOR_GOOGLE_MAPS_BROWSER_KEY`)
+
+**Header** : ajout d'un lien « Football » dans la nav.
+
+### 5. Gestion d'erreurs
+
+Chaque source est appelée indépendamment via `Promise.allSettled` :
+- Source 1 KO → message « Service data.sports.gouv.fr indisponible »
+- Source 2 KO → on garde les résultats source 1 sans enrichissement
+- Source 3 KO → bloc Google masqué, le reste affiché
+
+## Détails techniques
+
+- Edge function `get-google-places` : `verify_jwt = false`, utilise le gateway Google Maps (`places/v1/places:searchText`).
+- Suggestions stockées séparément pour éviter qu'un visiteur écrase la data officielle.
+- `data_es_id` = `inst_numero` de data.sports.gouv.fr (identifiant stable).
+- Le scraper FFF existant (`scrape-federation`) reste en place — non touché.
+- Pas de modification de l'annuaire générique `/recherche`.
+
+## Étapes d'implémentation
+
+1. Migration : créer `clubs_foot` + `clubs_foot_suggestions` + RLS.
+2. (Si nécessaire) Connecter le connecteur Google Maps.
+3. Edge function `get-google-places`.
+4. `src/lib/api/foot.ts` (3 sources + fallback).
+5. Composants UI (`FootClubCard`, `SuggestUpdateDialog`, `GoogleMiniMap`).
+6. Pages `Football.tsx` + `FootballClubDetail.tsx` + routes.
+7. Lien « Football » dans le header.
+
+## Hors scope
+
+- Pas de back-office d'admin pour modérer les suggestions (à faire plus tard).
+- Pas d'auth obligatoire pour suggérer (MVP — anonyme).
+- Pas de scraping massif FFF dans cette itération (déjà couvert par `scrape-federation`).

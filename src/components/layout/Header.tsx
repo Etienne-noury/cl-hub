@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 const navItems = [
   { href: '/', label: 'Accueil' },
   { href: '/recherche', label: 'Rechercher' },
+  { href: '/football', label: 'Football' },
   { href: '/disciplines', label: 'Disciplines' },
   { href: '/carte', label: 'Carte' },
   { href: '/federations', label: 'Fédérations' },

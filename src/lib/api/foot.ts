@@ -1,0 +1,157 @@
+// API combinant les 3 sources pour les clubs de football.
+// Source 1 : data.sports.gouv.fr (public, sans clé)
+// Source 2 : table Supabase clubs_foot (enrichissement)
+// Source 3 : edge function get-google-places (à la demande)
+
+import { supabase } from '@/integrations/supabase/client';
+
+export interface FootClubRaw {
+  /** data.sports.gouv.fr equipment ID */
+  data_es_id: string;
+  nom: string;
+  adresse: string;
+  code_postal: string;
+  ville: string;
+  lat: number | null;
+  lng: number | null;
+}
+
+export interface FootClubEnrichment {
+  niveau_ligue?: string | null;
+  prix_adulte?: number | null;
+  prix_enfant?: number | null;
+  site_web?: string | null;
+  telephone?: string | null;
+  horaires?: unknown;
+  google_rating?: number | null;
+  google_nb_avis?: number | null;
+}
+
+export interface FootClub extends FootClubRaw, FootClubEnrichment {}
+
+export interface GooglePlaces {
+  rating: number | null;
+  user_ratings_total: number | null;
+  formatted_phone_number: string | null;
+  website: string | null;
+  opening_hours: string[] | null;
+  place_id: string | null;
+}
+
+const SPORTS_GOUV_URL =
+  'https://data.sports.gouv.fr/api/explore/v2.1/catalog/datasets/equipements-sportifs/records';
+
+/** Source 1 : data.sports.gouv.fr — recherche par ville OU code postal. */
+export async function fetchFootClubsByLocation(query: string): Promise<FootClubRaw[]> {
+  const q = query.trim();
+  if (!q) return [];
+
+  const isPostalCode = /^\d{4,5}$/.test(q);
+  const where = isPostalCode
+    ? `activite_lib="Football" AND inst_cp="${q}"`
+    : `activite_lib="Football" AND commune_lib="${q.toUpperCase().replace(/"/g, '')}"`;
+
+  const url = `${SPORTS_GOUV_URL}?where=${encodeURIComponent(where)}&limit=50`;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`data.sports.gouv.fr ${res.status}`);
+  const json = await res.json();
+  const records = (json?.results ?? []) as any[];
+
+  // Dédoublonne par inst_numero (un équipement peut apparaître plusieurs fois par activité)
+  const seen = new Set<string>();
+  const clubs: FootClubRaw[] = [];
+  for (const r of records) {
+    const id = r.inst_numero ?? r.equip_numero ?? r.numero;
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    clubs.push({
+      data_es_id: String(id),
+      nom: r.inst_nom ?? 'Club de football',
+      adresse: r.inst_adresse ?? '',
+      code_postal: r.inst_cp ?? '',
+      ville: r.inst_com_lib ?? r.commune_lib ?? '',
+      lat: r.coordonnees?.lat ?? null,
+      lng: r.coordonnees?.lon ?? r.coordonnees?.lng ?? null,
+    });
+  }
+  return clubs;
+}
+
+/** Source 2 : enrichit avec les données stockées dans clubs_foot. */
+export async function enrichWithSupabase(clubs: FootClubRaw[]): Promise<FootClub[]> {
+  if (clubs.length === 0) return [];
+  const ids = clubs.map((c) => c.data_es_id);
+
+  try {
+    const { data, error } = await supabase
+      .from('clubs_foot')
+      .select(
+        'data_es_id, niveau_ligue, prix_adulte, prix_enfant, site_web, telephone, horaires, google_rating, google_nb_avis',
+      )
+      .in('data_es_id', ids);
+
+    if (error) throw error;
+
+    const map = new Map<string, FootClubEnrichment>();
+    for (const row of data ?? []) {
+      map.set(row.data_es_id, row);
+    }
+    return clubs.map((c) => ({ ...c, ...(map.get(c.data_es_id) ?? {}) }));
+  } catch (err) {
+    console.warn('enrichWithSupabase failed', err);
+    return clubs;
+  }
+}
+
+/** Récupère un club enrichi par son ID data.sports.gouv.fr. */
+export async function fetchFootClubById(dataEsId: string): Promise<FootClub | null> {
+  const url = `${SPORTS_GOUV_URL}?where=${encodeURIComponent(`inst_numero="${dataEsId}" AND activite_lib="Football"`)}&limit=1`;
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const json = await res.json();
+  const r = json?.results?.[0];
+  if (!r) return null;
+  const raw: FootClubRaw = {
+    data_es_id: dataEsId,
+    nom: r.inst_nom ?? 'Club de football',
+    adresse: r.inst_adresse ?? '',
+    code_postal: r.inst_cp ?? '',
+    ville: r.inst_com_lib ?? '',
+    lat: r.coordonnees?.lat ?? null,
+    lng: r.coordonnees?.lon ?? r.coordonnees?.lng ?? null,
+  };
+  const [enriched] = await enrichWithSupabase([raw]);
+  return enriched ?? raw;
+}
+
+/** Source 3 : Google Places via edge function. */
+export async function fetchGooglePlaces(clubNom: string, ville: string): Promise<GooglePlaces | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke('get-google-places', {
+      body: { clubNom, ville },
+    });
+    if (error) throw error;
+    return data as GooglePlaces;
+  } catch (err) {
+    console.warn('fetchGooglePlaces failed', err);
+    return null;
+  }
+}
+
+export interface SuggestionPayload {
+  data_es_id: string;
+  nom?: string;
+  ville?: string;
+  prix_adulte?: number | null;
+  prix_enfant?: number | null;
+  niveau_ligue?: string | null;
+  horaires_text?: string | null;
+  telephone?: string | null;
+  site_web?: string | null;
+}
+
+export async function submitSuggestion(payload: SuggestionPayload) {
+  const { error } = await supabase.from('clubs_foot_suggestions').insert([payload]);
+  if (error) throw error;
+}
