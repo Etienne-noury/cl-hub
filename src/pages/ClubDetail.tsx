@@ -1,20 +1,37 @@
 import { useParams, Link } from 'react-router-dom';
-import { 
-  MapPin, Phone, Mail, Globe, Star, Clock, Users, Trophy, 
-  ChevronLeft, Heart, Share2, Navigation, CreditCard, Check
+import { useQuery } from '@tanstack/react-query';
+import {
+  MapPin, Phone, Mail, Globe, Star, Clock,
+  ChevronLeft, Heart, Share2, Navigation, CreditCard, Check, Loader2,
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getClubById, levels } from '@/data/clubs';
+import { levels } from '@/data/clubs';
+import { fetchClubById } from '@/lib/api/equipements';
 import { getDisciplineById } from '@/data/disciplines';
 import { cn } from '@/lib/utils';
 
 export default function ClubDetail() {
   const { id } = useParams();
-  const club = getClubById(id || '');
+  const { data: club, isLoading } = useQuery({
+    queryKey: ['club', id],
+    queryFn: () => fetchClubById(id || ''),
+    enabled: !!id,
+  });
   const discipline = club ? getDisciplineById(club.discipline) : null;
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16 text-center">
+          <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
 
   if (!club) {
     return (
