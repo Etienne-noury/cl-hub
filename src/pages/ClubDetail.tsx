@@ -113,26 +113,35 @@ export default function ClubDetail() {
               </div>
 
               {/* Price card */}
-              <div className="lg:w-64 bg-muted/50 rounded-xl p-5 flex-shrink-0">
-                <h3 className="font-semibold text-foreground mb-4">Tarifs licences</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Adulte</span>
-                    <span className="font-bold text-xl text-foreground">{club.licensePrice.adult}€</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Enfant</span>
-                    <span className="font-bold text-xl text-foreground">{club.licensePrice.child}€</span>
-                  </div>
-                  {club.licensePrice.senior && (
+              {club.licensePrice.adult > 0 ? (
+                <div className="lg:w-64 bg-muted/50 rounded-xl p-5 flex-shrink-0">
+                  <h3 className="font-semibold text-foreground mb-4">Tarifs licences</h3>
+                  <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">Senior</span>
-                      <span className="font-bold text-xl text-foreground">{club.licensePrice.senior}€</span>
+                      <span className="text-muted-foreground">Adulte</span>
+                      <span className="font-bold text-xl text-foreground">{club.licensePrice.adult}€</span>
                     </div>
-                  )}
+                    {club.licensePrice.child > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Enfant</span>
+                        <span className="font-bold text-xl text-foreground">{club.licensePrice.child}€</span>
+                      </div>
+                    )}
+                    {club.licensePrice.senior && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Senior</span>
+                        <span className="font-bold text-xl text-foreground">{club.licensePrice.senior}€</span>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3">Par saison sportive</p>
                 </div>
-                <p className="text-xs text-muted-foreground mt-3">Par saison sportive</p>
-              </div>
+              ) : (
+                <div className="lg:w-64 bg-muted/50 rounded-xl p-5 flex-shrink-0 text-sm text-muted-foreground">
+                  Tarifs licence non communiqués.
+                  <br />Contactez directement la structure.
+                </div>
+              )}
             </div>
           </div>
         </div>
