@@ -76,6 +76,31 @@ export default function Recherche() {
       </section>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Bandeau annuaire fédéral */}
+        {(() => {
+          const fed = getFederationForDiscipline(selectedDiscipline);
+          if (!fed) return null;
+          const url = fed.buildSearchUrl({ city: searchQuery, postalCode: searchQuery });
+          return (
+            <div className="mb-6 rounded-2xl border border-primary/20 bg-primary/5 p-4 lg:p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+              <div className="text-3xl" aria-hidden>{fed.icon}</div>
+              <div className="flex-1">
+                <p className="font-display font-semibold text-foreground">
+                  Annuaire officiel — {fed.name}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Retrouvez l'exhaustivité des clubs affiliés{searchQuery ? ` à "${searchQuery}"` : ''} sur le site fédéral.
+                </p>
+              </div>
+              <Button asChild variant="default" className="gap-2">
+                <a href={url} target="_blank" rel="noopener noreferrer">
+                  Voir l'annuaire <ExternalLink className="w-4 h-4" />
+                </a>
+              </Button>
+            </div>
+          );
+        })()}
+
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters - Desktop */}
           <aside className="hidden lg:block w-72 flex-shrink-0">
