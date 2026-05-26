@@ -1,15 +1,19 @@
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Star, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { clubs, levels } from '@/data/clubs';
+import { Skeleton } from '@/components/ui/skeleton';
+import { levels } from '@/data/clubs';
+import { fetchClubs } from '@/lib/api/equipements';
 import { cn } from '@/lib/utils';
 
 export function FeaturedClubs() {
-  // Get top rated clubs
-  const featuredClubs = [...clubs]
-    .sort((a, b) => b.rating - a.rating)
-    .slice(0, 4);
+  const { data: featuredClubs = [], isLoading } = useQuery({
+    queryKey: ['clubs', 'featured'],
+    queryFn: () => fetchClubs({ region: 'Île-de-France', withCoordsOnly: true, limit: 4 }),
+  });
+
 
   return (
     <section className="py-16 lg:py-24 bg-muted/30">
