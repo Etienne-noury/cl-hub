@@ -108,7 +108,7 @@ export async function enrichWithSupabase(clubs: FootClubRaw[]): Promise<FootClub
 
 /** Récupère un club enrichi par son ID data.sports.gouv.fr. */
 export async function fetchFootClubById(dataEsId: string): Promise<FootClub | null> {
-  const url = `${SPORTS_GOUV_URL}?where=${encodeURIComponent(`inst_numero="${dataEsId}" AND activite_lib="Football"`)}&limit=1`;
+  const url = `${SPORTS_GOUV_URL}?where=${encodeURIComponent(`equip_numero="${dataEsId}"`)}&limit=1`;
   const res = await fetch(url);
   if (!res.ok) return null;
   const json = await res.json();
@@ -116,12 +116,12 @@ export async function fetchFootClubById(dataEsId: string): Promise<FootClub | nu
   if (!r) return null;
   const raw: FootClubRaw = {
     data_es_id: dataEsId,
-    nom: r.inst_nom ?? 'Club de football',
+    nom: r.inst_nom ?? r.equip_nom ?? 'Club de football',
     adresse: r.inst_adresse ?? '',
     code_postal: r.inst_cp ?? '',
-    ville: r.inst_com_lib ?? '',
-    lat: r.coordonnees?.lat ?? null,
-    lng: r.coordonnees?.lon ?? r.coordonnees?.lng ?? null,
+    ville: r.new_name ?? '',
+    lat: r.equip_coordonnees?.lat ?? null,
+    lng: r.equip_coordonnees?.lon ?? null,
   };
   const [enriched] = await enrichWithSupabase([raw]);
   return enriched ?? raw;
