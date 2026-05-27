@@ -117,17 +117,7 @@ Deno.serve(async (req) => {
       limit = Math.min(Number(u.searchParams.get('limit')) || limit, 50);
     }
 
-    if (req.method === 'POST') {
-      const body = await req.json().catch(() => ({}));
-      federationCode = body.federation || federationCode;
-      search = body.search;
-      limit = body.limit || limit;
-    } else {
-      const u = new URL(req.url);
-      federationCode = u.searchParams.get('federation') || federationCode;
-      search = u.searchParams.get('search') || undefined;
-      limit = Number(u.searchParams.get('limit')) || limit;
-    }
+
 
     const config = CONFIGS[federationCode];
     if (!config) throw new Error(`Federation non supportée: ${federationCode}`);
