@@ -89,12 +89,34 @@ Deno.serve(async (req) => {
     const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (!SUPABASE_URL || !SERVICE_ROLE) throw new Error('Supabase env not configured');
 
+    // Admin-only: require the caller to authenticate with the service role key.
+    const authHeader = req.headers.get('Authorization') ?? '';
+    const token = authHeader.replace(/^Bearer\s+/i, '');
+    if (!token || token !== SERVICE_ROLE) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
 
     // Lire les params (POST json {federation, search, limit} ou query string)
     let federationCode = 'FFF';
     let search: string | undefined;
     let limit = 20;
+    if (req.method === 'POST') {
+      const body = await req.json().catch(() => ({}));
+      federationCode = body.federation || federationCode;
+      search = body.search;
+      limit = Math.min(Number(body.limit) || limit, 50);
+    } else {
+      const u = new URL(req.url);
+      federationCode = u.searchParams.get('federation') || federationCode;
+      search = u.searchParams.get('search') || undefined;
+      limit = Math.min(Number(u.searchParams.get('limit')) || limit, 50);
+    }
+
     if (req.method === 'POST') {
       const body = await req.json().catch(() => ({}));
       federationCode = body.federation || federationCode;
