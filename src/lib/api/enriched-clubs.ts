@@ -54,7 +54,9 @@ export interface FetchEnrichedParams {
 
 export async function fetchEnrichedClubs(params: FetchEnrichedParams = {}): Promise<Club[]> {
   const { q, discipline, limit = 30 } = params;
-  let query = supabase.from('clubs_enriched').select('*').limit(limit);
+  // Use the public view that excludes sensitive columns (phone, email, raw).
+  let query = (supabase as any).from('clubs_enriched_public').select('*').limit(limit);
+
 
   if (discipline && discipline !== 'all') {
     query = query.eq('discipline', discipline);
