@@ -181,7 +181,63 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      clubs_enriched_public: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string | null
+          discipline: string | null
+          external_id: string | null
+          federation_code: string | null
+          id: string | null
+          latitude: number | null
+          longitude: number | null
+          name: string | null
+          postal_code: string | null
+          region: string | null
+          scraped_at: string | null
+          source_url: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string | null
+          discipline?: string | null
+          external_id?: string | null
+          federation_code?: string | null
+          id?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          name?: string | null
+          postal_code?: string | null
+          region?: string | null
+          scraped_at?: string | null
+          source_url?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string | null
+          discipline?: string | null
+          external_id?: string | null
+          federation_code?: string | null
+          id?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          name?: string | null
+          postal_code?: string | null
+          region?: string | null
+          scraped_at?: string | null
+          source_url?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
