@@ -21,8 +21,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { levels, regions } from '@/data/clubs';
-import { disciplines } from '@/data/disciplines';
+import { regions } from '@/data/clubs';
+import { disciplines, getParentDisciplines } from '@/data/disciplines';
 import { fetchClubs } from '@/lib/api/equipements';
 import { fetchEnrichedClubs } from '@/lib/api/enriched-clubs';
 import { getFederationForDiscipline } from '@/lib/federations-map';
@@ -154,11 +154,14 @@ export default function Recherche() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Toutes les disciplines</SelectItem>
-                        {disciplines.slice(0, 20).map((d) => (
-                          <SelectItem key={d.id} value={d.id}>
-                            {d.icon} {d.name}
-                          </SelectItem>
-                        ))}
+                        {getParentDisciplines()
+                          .slice()
+                          .sort((a, b) => b.popularity - a.popularity)
+                          .map((d) => (
+                            <SelectItem key={d.id} value={d.id}>
+                              {d.icon} {d.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -229,9 +232,12 @@ export default function Recherche() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Toutes</SelectItem>
-                      {disciplines.slice(0, 20).map((d) => (
-                        <SelectItem key={d.id} value={d.id}>{d.icon} {d.name}</SelectItem>
-                      ))}
+                      {getParentDisciplines()
+                        .slice()
+                        .sort((a, b) => b.popularity - a.popularity)
+                        .map((d) => (
+                          <SelectItem key={d.id} value={d.id}>{d.icon} {d.name}</SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -324,11 +330,6 @@ export default function Recherche() {
                             {disciplines.find(d => d.id === club.discipline)?.icon || '🏆'}
                           </span>
                         </div>
-                        <div className="absolute top-3 left-3">
-                          <Badge className={cn("text-white border-0", levels[club.level].color)}>
-                            {levels[club.level].name}
-                          </Badge>
-                        </div>
                         {club.rating > 0 && (
                           <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
                             <Star className="w-4 h-4 fill-warning text-warning" />
@@ -359,17 +360,7 @@ export default function Recherche() {
                           <MapPin className="w-4 h-4" />
                           <span>{[club.city, club.region].filter(Boolean).join(', ')}</span>
                         </div>
-                        <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Licence adulte</p>
-                            <p className="font-semibold text-foreground">
-                              {club.licensePrice.adult > 0 ? (
-                                <>{club.licensePrice.adult}€<span className="text-muted-foreground font-normal">/an</span></>
-                              ) : (
-                                <span className="text-muted-foreground font-normal text-sm">Nous consulter</span>
-                              )}
-                            </p>
-                          </div>
+                        <div className="flex items-center justify-end pt-4 border-t border-border/50">
                           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                             <ArrowRight className="w-5 h-5 text-primary" />
                           </div>

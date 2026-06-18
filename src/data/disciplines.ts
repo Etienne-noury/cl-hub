@@ -74,7 +74,7 @@ export const disciplines: Discipline[] = [
   { id: 'lacrosse', name: 'Lacrosse', category: 'collectif', icon: '🥍', description: 'Sport de crosse d\'origine amérindienne.', popularity: 2, clubCount: 85 },
   { id: 'ultimate', name: 'Ultimate Frisbee', category: 'collectif', icon: '🥏', description: 'Sport de disque auto-arbitré.', popularity: 4, clubCount: 320 },
   { id: 'cricket', name: 'Cricket', category: 'collectif', icon: '🏏', description: 'Sport de batte britannique.', popularity: 2, clubCount: 65 },
-  { id: 'roller-hockey', name: 'Roller Hockey', category: 'collectif', icon: '🏒', description: 'Hockey sur patins à roulettes.', popularity: 3, clubCount: 220 },
+  { id: 'roller-hockey-collectif', name: 'Roller Hockey', category: 'collectif', icon: '🏒', description: 'Hockey sur patins à roulettes.', popularity: 3, clubCount: 220 },
   { id: 'rink-hockey', name: 'Rink Hockey', category: 'collectif', icon: '🏒', description: 'Hockey sur patins traditionnel.', popularity: 2, clubCount: 140 },
 
   // ============================================
@@ -169,7 +169,7 @@ export const disciplines: Discipline[] = [
   // Sports nautiques
   { id: 'surf', name: 'Surf', category: 'glisse', icon: '🏄', description: 'Sport de glisse sur les vagues.', popularity: 6, clubCount: 580 },
   { id: 'bodyboard', name: 'Bodyboard', category: 'glisse', icon: '🏄', description: 'Glisse sur les vagues allongé.', popularity: 4, clubCount: 280, parentId: 'surf' },
-  { id: 'longboard', name: 'Longboard surf', category: 'glisse', icon: '🏄', description: 'Surf sur grande planche.', popularity: 4, clubCount: 320, parentId: 'surf' },
+  { id: 'longboard-surf', name: 'Longboard surf', category: 'glisse', icon: '🏄', description: 'Surf sur grande planche.', popularity: 4, clubCount: 320, parentId: 'surf' },
   { id: 'stand-up-paddle', name: 'Stand Up Paddle', category: 'glisse', icon: '🏄', description: 'Paddle debout sur planche.', popularity: 6, clubCount: 720 },
   { id: 'kitesurf', name: 'Kitesurf', category: 'glisse', icon: '🪁', description: 'Glisse tractée par cerf-volant.', popularity: 5, clubCount: 420 },
   { id: 'windsurf', name: 'Windsurf', category: 'glisse', icon: '🏄', description: 'Planche à voile.', popularity: 4, clubCount: 380 },
@@ -350,11 +350,11 @@ export const disciplines: Discipline[] = [
   { id: 'skateboard', name: 'Skateboard', category: 'glisse', icon: '🛹', description: 'Sport urbain olympique.', popularity: 6, clubCount: 520 },
   { id: 'skateboard-street', name: 'Skateboard street', category: 'glisse', icon: '🛹', description: 'Skate de rue et mobilier urbain.', popularity: 6, clubCount: 420, parentId: 'skateboard' },
   { id: 'skateboard-park', name: 'Skateboard park', category: 'glisse', icon: '🛹', description: 'Skate en bowl et rampes.', popularity: 5, clubCount: 380, parentId: 'skateboard' },
-  { id: 'longboard', name: 'Longboard', category: 'glisse', icon: '🛹', description: 'Planche longue, cruising et descente.', popularity: 4, clubCount: 220, parentId: 'skateboard' },
+  { id: 'longboard-skate', name: 'Longboard', category: 'glisse', icon: '🛹', description: 'Planche longue, cruising et descente.', popularity: 4, clubCount: 220, parentId: 'skateboard' },
   { id: 'roller', name: 'Roller', category: 'glisse', icon: '🛼', description: 'Sport de glisse urbain.', popularity: 5, clubCount: 680 },
   { id: 'roller-freestyle', name: 'Roller freestyle', category: 'glisse', icon: '🛼', description: 'Roller acrobatique (slalom, saut).', popularity: 4, clubCount: 280, parentId: 'roller' },
   { id: 'roller-derby', name: 'Roller derby', category: 'glisse', icon: '🛼', description: 'Sport de contact sur patins.', popularity: 4, clubCount: 180, parentId: 'roller' },
-  { id: 'roller-hockey', name: 'Roller in line hockey', category: 'glisse', icon: '🏒', description: 'Hockey sur rollers.', popularity: 3, clubCount: 220, parentId: 'roller' },
+  { id: 'roller-hockey-urbain', name: 'Roller in line hockey', category: 'glisse', icon: '🏒', description: 'Hockey sur rollers.', popularity: 3, clubCount: 220, parentId: 'roller' },
   { id: 'trottinette', name: 'Trottinette freestyle', category: 'glisse', icon: '🛴', description: 'Trottinette acrobatique.', popularity: 5, clubCount: 320 },
 
   // ============================================

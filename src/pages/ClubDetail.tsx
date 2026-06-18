@@ -8,6 +8,8 @@ import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FranceMap } from '@/components/map/FranceMap';
+import { useToast } from '@/hooks/use-toast';
 import { levels } from '@/data/clubs';
 import { fetchClubById } from '@/lib/api/equipements';
 import { getDisciplineById } from '@/data/disciplines';
@@ -15,6 +17,7 @@ import { cn } from '@/lib/utils';
 
 export default function ClubDetail() {
   const { id } = useParams();
+  const { toast } = useToast();
   const { data: club, isLoading } = useQuery({
     queryKey: ['club', id],
     queryFn: () => fetchClubById(id || ''),
@@ -97,15 +100,29 @@ export default function ClubDetail() {
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-3">
-                  <Button size="lg" className="gap-2">
+                  <Button
+                    size="lg"
+                    className="gap-2"
+                    onClick={() => toast({ title: 'Bientôt disponible' })}
+                  >
                     <CreditCard className="w-5 h-5" />
                     S'inscrire en ligne
                   </Button>
-                  <Button variant="outline" size="lg" className="gap-2">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="gap-2"
+                    onClick={() => toast({ title: 'Bientôt disponible' })}
+                  >
                     <Heart className="w-5 h-5" />
                     Favoris
                   </Button>
-                  <Button variant="outline" size="lg" className="gap-2">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="gap-2"
+                    onClick={() => toast({ title: 'Bientôt disponible' })}
+                  >
                     <Share2 className="w-5 h-5" />
                     Partager
                   </Button>
@@ -276,22 +293,29 @@ export default function ClubDetail() {
                 )}
               </div>
 
-              <Button className="w-full mt-6 gap-2">
+              <Button
+                className="w-full mt-6 gap-2"
+                onClick={() => {
+                  const { lat, lng } = club.coordinates;
+                  window.open(
+                    `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+                    '_blank',
+                    'noopener,noreferrer',
+                  );
+                }}
+              >
                 <Navigation className="w-4 h-4" />
                 Itinéraire
               </Button>
             </div>
 
-            {/* Map placeholder */}
+            {/* Mini-carte du club */}
             <div className="bg-card rounded-2xl border border-border overflow-hidden">
-              <div className="aspect-square bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-12 h-12 text-primary mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    Carte interactive
-                  </p>
-                </div>
-              </div>
+              <FranceMap
+                height="250px"
+                selectedDiscipline={club.discipline}
+                maxClubs={20}
+              />
             </div>
           </div>
         </div>
