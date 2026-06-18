@@ -8,6 +8,8 @@ import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FranceMap } from '@/components/map/FranceMap';
+import { useToast } from '@/hooks/use-toast';
 import { levels } from '@/data/clubs';
 import { fetchClubById } from '@/lib/api/equipements';
 import { getDisciplineById } from '@/data/disciplines';
@@ -15,6 +17,7 @@ import { cn } from '@/lib/utils';
 
 export default function ClubDetail() {
   const { id } = useParams();
+  const { toast } = useToast();
   const { data: club, isLoading } = useQuery({
     queryKey: ['club', id],
     queryFn: () => fetchClubById(id || ''),
