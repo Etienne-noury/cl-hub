@@ -293,22 +293,29 @@ export default function ClubDetail() {
                 )}
               </div>
 
-              <Button className="w-full mt-6 gap-2">
+              <Button
+                className="w-full mt-6 gap-2"
+                onClick={() => {
+                  const { lat, lng } = club.coordinates;
+                  window.open(
+                    `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+                    '_blank',
+                    'noopener,noreferrer',
+                  );
+                }}
+              >
                 <Navigation className="w-4 h-4" />
                 Itinéraire
               </Button>
             </div>
 
-            {/* Map placeholder */}
+            {/* Mini-carte du club */}
             <div className="bg-card rounded-2xl border border-border overflow-hidden">
-              <div className="aspect-square bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-12 h-12 text-primary mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    Carte interactive
-                  </p>
-                </div>
-              </div>
+              <FranceMap
+                height="250px"
+                selectedDiscipline={club.discipline}
+                maxClubs={20}
+              />
             </div>
           </div>
         </div>
