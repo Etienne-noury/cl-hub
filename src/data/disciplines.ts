@@ -169,7 +169,7 @@ export const disciplines: Discipline[] = [
   // Sports nautiques
   { id: 'surf', name: 'Surf', category: 'glisse', icon: '🏄', description: 'Sport de glisse sur les vagues.', popularity: 6, clubCount: 580 },
   { id: 'bodyboard', name: 'Bodyboard', category: 'glisse', icon: '🏄', description: 'Glisse sur les vagues allongé.', popularity: 4, clubCount: 280, parentId: 'surf' },
-  { id: 'longboard', name: 'Longboard surf', category: 'glisse', icon: '🏄', description: 'Surf sur grande planche.', popularity: 4, clubCount: 320, parentId: 'surf' },
+  { id: 'longboard-surf', name: 'Longboard surf', category: 'glisse', icon: '🏄', description: 'Surf sur grande planche.', popularity: 4, clubCount: 320, parentId: 'surf' },
   { id: 'stand-up-paddle', name: 'Stand Up Paddle', category: 'glisse', icon: '🏄', description: 'Paddle debout sur planche.', popularity: 6, clubCount: 720 },
   { id: 'kitesurf', name: 'Kitesurf', category: 'glisse', icon: '🪁', description: 'Glisse tractée par cerf-volant.', popularity: 5, clubCount: 420 },
   { id: 'windsurf', name: 'Windsurf', category: 'glisse', icon: '🏄', description: 'Planche à voile.', popularity: 4, clubCount: 380 },
