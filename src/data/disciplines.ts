@@ -354,7 +354,7 @@ export const disciplines: Discipline[] = [
   { id: 'roller', name: 'Roller', category: 'glisse', icon: '🛼', description: 'Sport de glisse urbain.', popularity: 5, clubCount: 680 },
   { id: 'roller-freestyle', name: 'Roller freestyle', category: 'glisse', icon: '🛼', description: 'Roller acrobatique (slalom, saut).', popularity: 4, clubCount: 280, parentId: 'roller' },
   { id: 'roller-derby', name: 'Roller derby', category: 'glisse', icon: '🛼', description: 'Sport de contact sur patins.', popularity: 4, clubCount: 180, parentId: 'roller' },
-  { id: 'roller-hockey', name: 'Roller in line hockey', category: 'glisse', icon: '🏒', description: 'Hockey sur rollers.', popularity: 3, clubCount: 220, parentId: 'roller' },
+  { id: 'roller-hockey-urbain', name: 'Roller in line hockey', category: 'glisse', icon: '🏒', description: 'Hockey sur rollers.', popularity: 3, clubCount: 220, parentId: 'roller' },
   { id: 'trottinette', name: 'Trottinette freestyle', category: 'glisse', icon: '🛴', description: 'Trottinette acrobatique.', popularity: 5, clubCount: 320 },
 
   // ============================================
