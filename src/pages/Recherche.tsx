@@ -360,17 +360,7 @@ export default function Recherche() {
                           <MapPin className="w-4 h-4" />
                           <span>{[club.city, club.region].filter(Boolean).join(', ')}</span>
                         </div>
-                        <div className="flex items-center justify-between pt-4 border-t border-border/50">
-                          <div>
-                            <p className="text-xs text-muted-foreground">Licence adulte</p>
-                            <p className="font-semibold text-foreground">
-                              {club.licensePrice.adult > 0 ? (
-                                <>{club.licensePrice.adult}€<span className="text-muted-foreground font-normal">/an</span></>
-                              ) : (
-                                <span className="text-muted-foreground font-normal text-sm">Nous consulter</span>
-                              )}
-                            </p>
-                          </div>
+                        <div className="flex items-center justify-end pt-4 border-t border-border/50">
                           <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                             <ArrowRight className="w-5 h-5 text-primary" />
                           </div>
