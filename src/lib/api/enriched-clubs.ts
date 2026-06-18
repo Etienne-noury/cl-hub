@@ -1,6 +1,8 @@
 // Clubs enrichis depuis les annuaires fédéraux (Firecrawl + DB Lovable Cloud).
-// Complète l'API gouvernementale equipements-sportifs en apportant les
-// contacts (tél, email, site) et l'affiliation fédérale officielle.
+// Complète l'API gouvernementale equipements-sportifs en apportant l'affiliation
+// fédérale officielle et le site web public du club. Les contacts directs
+// (téléphone, email) ne sont volontairement pas exposés par la vue publique
+// `clubs_enriched_public` pour des raisons de confidentialité (RGPD).
 
 import { supabase } from '@/integrations/supabase/client';
 import type { Club } from '@/data/clubs';
@@ -17,8 +19,6 @@ export interface EnrichedClubRow {
   region: string | null;
   latitude: number | null;
   longitude: number | null;
-  phone: string | null;
-  email: string | null;
   website: string | null;
   source_url: string;
 }
@@ -34,8 +34,8 @@ function rowToClub(r: EnrichedClubRow): Club {
     city: r.city ?? '',
     postalCode: r.postal_code ?? '',
     region: r.region ?? '',
-    phone: r.phone ?? '',
-    email: r.email ?? '',
+    phone: '',
+    email: '',
     level: 'loisir',
     licensePrice: { adult: 0, child: 0 },
     coordinates: { lat: r.latitude ?? 0, lng: r.longitude ?? 0 },
@@ -55,8 +55,7 @@ export interface FetchEnrichedParams {
 export async function fetchEnrichedClubs(params: FetchEnrichedParams = {}): Promise<Club[]> {
   const { q, discipline, limit = 30 } = params;
   // Use the public view that excludes sensitive columns (phone, email, raw).
-  let query = (supabase as any).from('clubs_enriched_public').select('*').limit(limit);
-
+  let query = supabase.from('clubs_enriched_public').select('*').limit(limit);
 
   if (discipline && discipline !== 'all') {
     query = query.eq('discipline', discipline);
