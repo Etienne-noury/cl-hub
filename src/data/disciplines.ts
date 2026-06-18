@@ -74,7 +74,7 @@ export const disciplines: Discipline[] = [
   { id: 'lacrosse', name: 'Lacrosse', category: 'collectif', icon: '🥍', description: 'Sport de crosse d\'origine amérindienne.', popularity: 2, clubCount: 85 },
   { id: 'ultimate', name: 'Ultimate Frisbee', category: 'collectif', icon: '🥏', description: 'Sport de disque auto-arbitré.', popularity: 4, clubCount: 320 },
   { id: 'cricket', name: 'Cricket', category: 'collectif', icon: '🏏', description: 'Sport de batte britannique.', popularity: 2, clubCount: 65 },
-  { id: 'roller-hockey', name: 'Roller Hockey', category: 'collectif', icon: '🏒', description: 'Hockey sur patins à roulettes.', popularity: 3, clubCount: 220 },
+  { id: 'roller-hockey-collectif', name: 'Roller Hockey', category: 'collectif', icon: '🏒', description: 'Hockey sur patins à roulettes.', popularity: 3, clubCount: 220 },
   { id: 'rink-hockey', name: 'Rink Hockey', category: 'collectif', icon: '🏒', description: 'Hockey sur patins traditionnel.', popularity: 2, clubCount: 140 },
 
   // ============================================
