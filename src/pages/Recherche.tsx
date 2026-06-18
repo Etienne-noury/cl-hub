@@ -330,11 +330,6 @@ export default function Recherche() {
                             {disciplines.find(d => d.id === club.discipline)?.icon || '🏆'}
                           </span>
                         </div>
-                        <div className="absolute top-3 left-3">
-                          <Badge className={cn("text-white border-0", levels[club.level].color)}>
-                            {levels[club.level].name}
-                          </Badge>
-                        </div>
                         {club.rating > 0 && (
                           <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
                             <Star className="w-4 h-4 fill-warning text-warning" />
