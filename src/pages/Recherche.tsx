@@ -21,8 +21,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { levels, regions } from '@/data/clubs';
-import { disciplines } from '@/data/disciplines';
+import { regions } from '@/data/clubs';
+import { disciplines, getParentDisciplines } from '@/data/disciplines';
 import { fetchClubs } from '@/lib/api/equipements';
 import { fetchEnrichedClubs } from '@/lib/api/enriched-clubs';
 import { getFederationForDiscipline } from '@/lib/federations-map';
