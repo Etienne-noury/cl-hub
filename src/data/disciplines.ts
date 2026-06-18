@@ -350,7 +350,7 @@ export const disciplines: Discipline[] = [
   { id: 'skateboard', name: 'Skateboard', category: 'glisse', icon: '🛹', description: 'Sport urbain olympique.', popularity: 6, clubCount: 520 },
   { id: 'skateboard-street', name: 'Skateboard street', category: 'glisse', icon: '🛹', description: 'Skate de rue et mobilier urbain.', popularity: 6, clubCount: 420, parentId: 'skateboard' },
   { id: 'skateboard-park', name: 'Skateboard park', category: 'glisse', icon: '🛹', description: 'Skate en bowl et rampes.', popularity: 5, clubCount: 380, parentId: 'skateboard' },
-  { id: 'longboard', name: 'Longboard', category: 'glisse', icon: '🛹', description: 'Planche longue, cruising et descente.', popularity: 4, clubCount: 220, parentId: 'skateboard' },
+  { id: 'longboard-skate', name: 'Longboard', category: 'glisse', icon: '🛹', description: 'Planche longue, cruising et descente.', popularity: 4, clubCount: 220, parentId: 'skateboard' },
   { id: 'roller', name: 'Roller', category: 'glisse', icon: '🛼', description: 'Sport de glisse urbain.', popularity: 5, clubCount: 680 },
   { id: 'roller-freestyle', name: 'Roller freestyle', category: 'glisse', icon: '🛼', description: 'Roller acrobatique (slalom, saut).', popularity: 4, clubCount: 280, parentId: 'roller' },
   { id: 'roller-derby', name: 'Roller derby', category: 'glisse', icon: '🛼', description: 'Sport de contact sur patins.', popularity: 4, clubCount: 180, parentId: 'roller' },
