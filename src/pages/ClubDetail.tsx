@@ -100,15 +100,29 @@ export default function ClubDetail() {
 
                 {/* Actions */}
                 <div className="flex flex-wrap gap-3">
-                  <Button size="lg" className="gap-2">
+                  <Button
+                    size="lg"
+                    className="gap-2"
+                    onClick={() => toast({ title: 'Bientôt disponible' })}
+                  >
                     <CreditCard className="w-5 h-5" />
                     S'inscrire en ligne
                   </Button>
-                  <Button variant="outline" size="lg" className="gap-2">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="gap-2"
+                    onClick={() => toast({ title: 'Bientôt disponible' })}
+                  >
                     <Heart className="w-5 h-5" />
                     Favoris
                   </Button>
-                  <Button variant="outline" size="lg" className="gap-2">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="gap-2"
+                    onClick={() => toast({ title: 'Bientôt disponible' })}
+                  >
                     <Share2 className="w-5 h-5" />
                     Partager
                   </Button>
