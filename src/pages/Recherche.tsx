@@ -154,11 +154,14 @@ export default function Recherche() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">Toutes les disciplines</SelectItem>
-                        {disciplines.slice(0, 20).map((d) => (
-                          <SelectItem key={d.id} value={d.id}>
-                            {d.icon} {d.name}
-                          </SelectItem>
-                        ))}
+                        {getParentDisciplines()
+                          .slice()
+                          .sort((a, b) => b.popularity - a.popularity)
+                          .map((d) => (
+                            <SelectItem key={d.id} value={d.id}>
+                              {d.icon} {d.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                   </div>
