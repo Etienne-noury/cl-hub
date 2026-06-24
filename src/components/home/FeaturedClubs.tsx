@@ -2,16 +2,14 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, Star, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { levels } from '@/data/clubs';
 import { fetchClubs } from '@/lib/api/equipements';
-import { cn } from '@/lib/utils';
+import { getDisciplineById } from '@/data/disciplines';
 
 export function FeaturedClubs() {
   const { data: featuredClubs = [], isLoading } = useQuery({
     queryKey: ['clubs', 'featured'],
-    queryFn: () => fetchClubs({ region: 'Île-de-France', withCoordsOnly: true, limit: 4 }),
+    queryFn: () => fetchClubs({ withCoordsOnly: true, limit: 4 }),
   });
 
 
@@ -50,27 +48,8 @@ export function FeaturedClubs() {
                 <div className="aspect-[4/3] bg-gradient-to-br from-primary/20 to-accent/20 relative">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-5xl opacity-50">
-                      {club.discipline === 'football' ? '⚽' :
-                       club.discipline === 'tennis' ? '🎾' :
-                       club.discipline === 'natation' ? '🏊' :
-                       club.discipline === 'judo' ? '🥋' :
-                       club.discipline === 'basketball' ? '🏀' :
-                       club.discipline === 'equitation' ? '🏇' :
-                       club.discipline === 'yoga' ? '🧘' :
-                       club.discipline === 'escalade' ? '🧗' :
-                       club.discipline === 'trail' ? '🏃' :
-                       club.discipline === 'padel' ? '🎾' : '🏆'}
+                      {getDisciplineById(club.discipline)?.icon || '🏆'}
                     </span>
-                  </div>
-                  
-                  {/* Level badge */}
-                  <div className="absolute top-3 left-3">
-                    <Badge className={cn(
-                      "text-white border-0",
-                      levels[club.level].color
-                    )}>
-                      {levels[club.level].name}
-                    </Badge>
                   </div>
 
                   {/* Rating */}
@@ -94,28 +73,6 @@ export function FeaturedClubs() {
                     <div className="flex items-center gap-1 text-muted-foreground text-sm">
                       <MapPin className="w-4 h-4" />
                       <span>{club.city}</span>
-                    </div>
-                  </div>
-
-                  {/* Price */}
-                  <div className="mt-4 pt-4 border-t border-border/50 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Licence adulte</p>
-                      <p className="font-semibold text-foreground">
-                        {club.licensePrice.adult > 0 ? (
-                          <>
-                            {club.licensePrice.adult}€
-                            <span className="text-muted-foreground font-normal">/an</span>
-                          </>
-                        ) : (
-                          <span className="text-muted-foreground font-normal text-sm">
-                            Nous consulter
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                      <ArrowRight className="w-5 h-5" />
                     </div>
                   </div>
                 </div>

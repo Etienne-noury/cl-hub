@@ -8,7 +8,7 @@ import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FranceMap } from '@/components/map/FranceMap';
+import { GoogleMiniMap } from '@/components/foot/GoogleMiniMap';
 import { useToast } from '@/hooks/use-toast';
 import { levels } from '@/data/clubs';
 import { fetchClubById } from '@/lib/api/equipements';
@@ -311,10 +311,10 @@ export default function ClubDetail() {
 
             {/* Mini-carte du club */}
             <div className="bg-card rounded-2xl border border-border overflow-hidden">
-              <FranceMap
-                height="250px"
-                selectedDiscipline={club.discipline}
-                maxClubs={20}
+              <GoogleMiniMap
+                lat={club.coordinates.lat || null}
+                lng={club.coordinates.lng || null}
+                address={`${club.address}, ${club.postalCode} ${club.city}`}
               />
             </div>
           </div>

@@ -1,29 +1,29 @@
-import { Users, MapPin, Trophy, Star } from 'lucide-react';
+import { MapPin, Trophy, Map, Database } from 'lucide-react';
 
 const stats = [
   {
     icon: MapPin,
-    value: '100K+',
+    value: '300 000+',
     label: 'Clubs référencés',
-    description: 'Partout en France',
-  },
-  {
-    icon: Users,
-    value: '2M+',
-    label: 'Sportifs actifs',
-    description: 'Utilisent CL-HUB',
+    description: 'Source : Ministère des Sports',
   },
   {
     icon: Trophy,
-    value: '50+',
-    label: 'Disciplines',
-    description: 'Sports disponibles',
+    value: '250+',
+    label: 'Disciplines sportives',
+    description: 'Référencées sur CL-HUB',
   },
   {
-    icon: Star,
-    value: '4.8/5',
-    label: 'Satisfaction',
-    description: 'Note moyenne',
+    icon: Map,
+    value: '18',
+    label: 'Régions couvertes',
+    description: 'Partout en France',
+  },
+  {
+    icon: Database,
+    value: '100%',
+    label: 'Données ouvertes',
+    description: 'Open data gouvernemental',
   },
 ];
 

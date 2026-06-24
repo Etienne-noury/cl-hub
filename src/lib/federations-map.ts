@@ -5,7 +5,11 @@
 export interface FederationSource {
   code: string;
   name: string;
+  sport: string;
   icon: string;
+  type: 'api' | 'opendata' | 'annuaire';
+  /** URL principale de la fédération (page d'accueil annuaire). */
+  url: string;
   /** Construit l'URL de recherche d'annuaire, optionnellement filtrée par ville/CP. */
   buildSearchUrl: (query?: { city?: string; postalCode?: string }) => string;
 }
@@ -14,41 +18,59 @@ export const federationSources: Record<string, FederationSource> = {
   FFF: {
     code: 'FFF',
     name: 'Fédération Française de Football',
+    sport: 'Football',
     icon: '⚽',
+    type: 'api',
+    url: 'https://api.fff.fr',
     buildSearchUrl: ({ city, postalCode } = {}) =>
       `https://www.fff.fr/recherche-club.html?q=${encodeURIComponent(postalCode || city || '')}`,
   },
   FFT: {
     code: 'FFT',
     name: 'Fédération Française de Tennis',
+    sport: 'Tennis',
     icon: '🎾',
+    type: 'annuaire',
+    url: 'https://tenup.fft.fr',
     buildSearchUrl: ({ city, postalCode } = {}) =>
       `https://tenup.fft.fr/recherche/clubs?q=${encodeURIComponent(postalCode || city || '')}`,
   },
   FFR: {
     code: 'FFR',
     name: 'Fédération Française de Rugby',
+    sport: 'Rugby',
     icon: '🏉',
+    type: 'annuaire',
+    url: 'https://www.ffr.fr/ffr/le-rugby/trouver-un-club',
     buildSearchUrl: ({ city, postalCode } = {}) =>
       `https://www.ffr.fr/ffr/le-rugby/trouver-un-club?search=${encodeURIComponent(postalCode || city || '')}`,
   },
   FFVL: {
     code: 'FFVL',
     name: 'Fédération Française de Vol Libre',
+    sport: 'Vol libre',
     icon: '🪂',
+    type: 'opendata',
+    url: 'https://data.ffvl.fr',
     buildSearchUrl: () => 'https://federation.ffvl.fr/pages/structures',
   },
   FFN: {
     code: 'FFN',
     name: 'Fédération Française de Natation',
+    sport: 'Natation',
     icon: '🏊',
+    type: 'annuaire',
+    url: 'https://www.ffnatation.fr',
     buildSearchUrl: ({ city, postalCode } = {}) =>
       `https://www.ffnatation.fr/clubs?q=${encodeURIComponent(postalCode || city || '')}`,
   },
   FFBaD: {
     code: 'FFBaD',
     name: 'Fédération Française de Badminton',
+    sport: 'Badminton',
     icon: '🏸',
+    type: 'api',
+    url: 'https://www.ffbad.org',
     buildSearchUrl: ({ city, postalCode } = {}) =>
       `https://www.ffbad.org/pratiquer/trouver-un-club?q=${encodeURIComponent(postalCode || city || '')}`,
   },
