@@ -41,7 +41,7 @@ export default function Carte() {
               </SelectTrigger>
               <SelectContent className="bg-card z-[2000]">
                 <SelectItem value="all">Toutes les disciplines</SelectItem>
-                {parentDisciplines.map((d) => (
+                {[...parentDisciplines].sort((a, b) => b.popularity - a.popularity).map((d) => (
                   <SelectItem key={d.id} value={d.id}>
                     {d.icon} {d.name}
                   </SelectItem>
