@@ -66,6 +66,7 @@ export async function fetchEnrichedClubs(params: FetchEnrichedParams = {}): Prom
   }
 
   const { data, error } = await query;
+  console.log('[enriched] résultats:', data?.length, 'erreur:', error?.message);
   if (error) {
     console.error('[fetchEnrichedClubs]', error.message);
     return [];
